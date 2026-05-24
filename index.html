@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PackZone</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#080a0f;--surface:#0e1117;--surface2:#161b26;--surface3:#1e2535;
+  --border:#252d3d;--accent:#f5a623;--accent2:#e8453c;--gold:#ffd700;
+  --text:#e8eaf2;--text-dim:#6b7694;--green:#2ecc71;--radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.tab-btns{display:flex;gap:5px;}
+.tab-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text-dim);transition:all 0.2s;}
+.tab-btn.active{background:var(--accent);color:#000;border-color:var(--accent);}
+
+/* ADMIN */
+#adminPage{display:none;}
+#adminPage.active{display:grid;grid-template-columns:1fr 320px;min-height:calc(100vh - 57px);}
+.left-panel{padding:18px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;}
+.right-panel{background:var(--surface);border-left:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:12px;overflow-y:auto;max-height:calc(100vh - 57px);position:sticky;top:57px;}
+
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1px;color:var(--accent);margin-bottom:14px;}
+
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+label{font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px;}
+input[type=text],input[type=number],select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;outline:none;transition:border-color 0.2s,box-shadow 0.2s;width:100%;}
+input:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(245,166,35,0.1);}
+select option{background:var(--surface2);}
+
+/* Image section */
+.img-section{display:flex;flex-direction:column;gap:8px;margin-bottom:14px;}
+.img-methods{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.img-method-btn{padding:9px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;}
+.img-method-btn.active{border-color:var(--accent);color:var(--accent);background:rgba(245,166,35,0.08);}
+
+.img-upload-box{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;align-items:center;gap:6px;}
+.img-upload-box:hover{border-color:var(--accent);background:rgba(245,166,35,0.03);}
+.img-upload-box.has-img{padding:0;border-style:solid;border-color:var(--accent);height:130px;overflow:hidden;}
+.img-upload-box.has-img img{width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;}
+.img-upload-box .uicon{font-size:26px;}
+.img-upload-box .utxt{font-size:12px;color:var(--text-dim);}
+.img-upload-box .usub{font-size:10px;color:var(--text-dim);opacity:0.5;}
+input[type=file]{display:none;}
+
+.img-url-row{display:flex;gap:6px;}
+.img-url-row input{flex:1;}
+.img-url-apply{padding:9px 14px;border-radius:8px;background:var(--accent);color:#000;border:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.img-preview-box{height:100px;border-radius:8px;overflow:hidden;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:32px;}
+.img-preview-box img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* Rarity */
+.rarity-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.rarity-btn{padding:7px 3px;border-radius:7px;border:2px solid transparent;cursor:pointer;text-align:center;font-size:9px;font-weight:600;transition:all 0.2s;background:var(--surface2);}
+.rarity-btn.selected{transform:scale(1.06);}
+.rarity-btn[data-r="common"]{color:#a0a8b8;}.rarity-btn[data-r="common"].selected{border-color:#a0a8b8;background:rgba(160,168,184,0.1);}
+.rarity-btn[data-r="rare"]{color:#4fc3f7;}.rarity-btn[data-r="rare"].selected{border-color:#4fc3f7;background:rgba(79,195,247,0.1);}
+.rarity-btn[data-r="epic"]{color:#ce93d8;}.rarity-btn[data-r="epic"].selected{border-color:#ce93d8;background:rgba(206,147,216,0.1);}
+.rarity-btn[data-r="legendary"]{color:var(--gold);}.rarity-btn[data-r="legendary"].selected{border-color:var(--gold);background:rgba(255,215,0,0.1);}
+.rarity-btn[data-r="icon"]{color:var(--accent2);}.rarity-btn[data-r="icon"].selected{border-color:var(--accent2);background:rgba(232,69,60,0.1);}
+.rdot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-bottom:4px;}
+
+/* Rating */
+.rating-preview{display:flex;align-items:center;gap:10px;margin-top:4px;}
+.rating-num{font-family:'Bebas Neue',sans-serif;font-size:30px;color:var(--accent);min-width:42px;}
+.rating-bar-wrap{flex:1;height:5px;background:var(--surface3);border-radius:3px;overflow:hidden;}
+.rating-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width 0.3s;}
+
+/* Pack type */
+.pack-type-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px;}
+.pack-type-btn{padding:11px 5px;border-radius:9px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all 0.2s;}
+.pack-type-btn.selected{border-color:var(--accent);background:rgba(245,166,35,0.08);}
+.pti{font-size:20px;margin-bottom:4px;}
+.ptl{font-size:10px;font-weight:600;color:var(--text-dim);}
+.pack-type-btn.selected .ptl{color:var(--accent);}
+
+.add-btn{width:100%;padding:11px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;margin-top:4px;}
+.add-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(245,166,35,0.3);}
+
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--text-dim);display:flex;align-items:center;justify-content:space-between;}
+.panel-count{background:var(--accent);color:#000;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;font-family:'Outfit',sans-serif;}
+
+.player-card-item{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:9px;display:flex;gap:9px;align-items:center;animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:translateX(0)}}
+.player-thumb{width:42px;height:42px;border-radius:7px;flex-shrink:0;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;}
+.player-thumb img{width:100%;height:100%;object-fit:cover;}
+.player-info{flex:1;min-width:0;}
+.player-name{font-weight:700;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.player-meta{font-size:10px;color:var(--text-dim);margin-top:1px;}
+.player-rb{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--accent);flex-shrink:0;}
+.rtag{font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;display:inline-block;margin-top:2px;}
+.rt-common{background:rgba(160,168,184,0.15);color:#a0a8b8}.rt-rare{background:rgba(79,195,247,0.15);color:#4fc3f7}.rt-epic{background:rgba(206,147,216,0.15);color:#ce93d8}.rt-legendary{background:rgba(255,215,0,0.15);color:var(--gold)}.rt-icon{background:rgba(232,69,60,0.15);color:var(--accent2)}
+.remove-btn{width:22px;height:22px;border-radius:5px;background:rgba(232,69,60,0.1);border:none;color:var(--accent2);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.remove-btn:hover{background:rgba(232,69,60,0.25);}
+
+.empty-state{text-align:center;padding:32px 14px;color:var(--text-dim);}
+.empty-icon{font-size:32px;margin-bottom:7px;}
+.empty-text{font-size:12px;}
+
+.save-pack-btn{width:100%;padding:12px;border-radius:9px;background:var(--green);border:none;color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;margin-top:auto;}
+.save-pack-btn:hover{background:#27ae60;transform:translateY(-1px);}
+.save-pack-btn:disabled{opacity:0.4;cursor:default;transform:none;}
+
+/* OPENING */
+#openingPage{display:none;flex-direction:column;align-items:center;padding:32px 16px;min-height:calc(100vh - 57px);}
+#openingPage.active{display:flex;}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;width:3px;height:3px;border-radius:50%;opacity:0;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:0.6}90%{opacity:0.3}100%{transform:translateY(-10vh) scale(1);opacity:0}}
+
+.pack-info{text-align:center;margin-bottom:28px;position:relative;z-index:2;}
+.pack-type-badge{display:inline-flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:9px;}
+.pack-name-big{font-family:'Bebas Neue',sans-serif;font-size:clamp(26px,6vw,50px);letter-spacing:2px;background:linear-gradient(135deg,#fff 0%,var(--accent) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.pack-sub{font-size:12px;color:var(--text-dim);margin-top:5px;}
+
+.no-pack{text-align:center;padding:60px 16px;position:relative;z-index:2;}
+.no-pack-icon{font-size:52px;margin-bottom:12px;}
+.no-pack-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:7px;}
+.no-pack-text{color:var(--text-dim);font-size:13px;margin-bottom:18px;}
+.go-admin-btn{display:inline-block;padding:10px 24px;background:var(--accent);color:#000;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;border-radius:9px;cursor:pointer;border:none;transition:all 0.2s;}
+.go-admin-btn:hover{background:#ffb83f;transform:translateY(-2px);}
+
+#packStage{display:flex;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:2;}
+.pack-envelope-wrap{perspective:1000px;cursor:pointer;}
+.pack-envelope{width:170px;height:238px;border-radius:13px;filter:drop-shadow(0 18px 45px rgba(245,166,35,0.3));transition:transform 0.1s;}
+.pack-envelope:hover{transform:scale(1.04) rotateY(4deg);}
+.pack-envelope.shaking{animation:shake 0.6s ease;}
+@keyframes shake{0%,100%{transform:rotate(0) scale(1.04)}20%{transform:rotate(-4deg) scale(1.06)}40%{transform:rotate(4deg) scale(1.06)}60%{transform:rotate(-3deg) scale(1.05)}80%{transform:rotate(3deg) scale(1.05)}}
+.pack-envelope.opening{animation:openPack 0.7s cubic-bezier(0.68,-0.55,0.27,1.55) forwards;}
+@keyframes openPack{0%{transform:scale(1);opacity:1}40%{transform:scale(1.15) rotate(-3deg);opacity:1}70%{transform:scale(0.8) rotate(8deg);opacity:0.6}100%{transform:scale(0) rotate(20deg);opacity:0}}
+
+.pack-face{width:100%;height:100%;border-radius:13px;background:linear-gradient(145deg,#1a1f30,#0d1018);border:2px solid rgba(245,166,35,0.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;position:relative;overflow:hidden;}
+.pack-face::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(45deg,transparent,transparent 16px,rgba(245,166,35,0.03) 16px,rgba(245,166,35,0.03) 32px);}
+.pack-face::after{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg,transparent 0%,rgba(245,166,35,0.04) 50%,transparent 100%);animation:rotateBg 8s linear infinite;}
+@keyframes rotateBg{to{transform:rotate(360deg)}}
+.pack-icon{font-size:42px;position:relative;z-index:1;}
+.pack-label{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--accent);position:relative;z-index:1;}
+.pack-cards-count{font-size:10px;color:var(--text-dim);position:relative;z-index:1;}
+.pack-glow{position:absolute;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,0.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.4);opacity:0.6}}
+.open-hint{font-size:12px;color:var(--text-dim);animation:blink 2s ease-in-out infinite;position:relative;z-index:2;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.4}}
+
+#cardsArea{display:none;flex-direction:column;align-items:center;gap:20px;position:relative;z-index:2;width:100%;}
+.cards-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;width:100%;}
+
+.player-card{width:140px;border-radius:12px;cursor:pointer;transform-style:preserve-3d;perspective:600px;opacity:0;transform:translateY(28px) scale(0.9);animation:cardReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes cardReveal{to{opacity:1;transform:translateY(0) scale(1)}}
+.card-inner{position:relative;width:100%;height:200px;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1);border-radius:12px;}
+.player-card.flipped .card-inner{transform:rotateY(180deg);}
+.card-face{position:absolute;inset:0;border-radius:12px;backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+.card-back{background:linear-gradient(145deg,#1a1f30,#0d1018);border:2px solid rgba(245,166,35,0.2);display:flex;align-items:center;justify-content:center;font-size:36px;overflow:hidden;}
+.card-back::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(-45deg,transparent,transparent 7px,rgba(245,166,35,0.04) 7px,rgba(245,166,35,0.04) 14px);}
+.card-front{transform:rotateY(180deg);display:flex;flex-direction:column;overflow:hidden;border:2px solid transparent;}
+.card-front.common{background:linear-gradient(160deg,#1a1e2a,#111520);border-color:#3a3f52;}
+.card-front.rare{background:linear-gradient(160deg,#0d1929,#091220);border-color:#1565c0;box-shadow:0 0 16px rgba(21,101,192,0.3);}
+.card-front.epic{background:linear-gradient(160deg,#1a0d29,#110920);border-color:#7b1fa2;box-shadow:0 0 16px rgba(123,31,162,0.3);}
+.card-front.legendary{background:linear-gradient(160deg,#1f1500,#120d00);border-color:var(--gold);box-shadow:0 0 24px rgba(255,215,0,0.4);}
+.card-front.icon{background:linear-gradient(160deg,#1f0505,#120000);border-color:var(--accent2);box-shadow:0 0 24px rgba(232,69,60,0.4);}
+.card-img-area{height:105px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.2);}
+.card-img-area img{width:100%;height:100%;object-fit:cover;}
+.card-img-emoji{font-size:42px;}
+.card-rating-badge{position:absolute;top:5px;left:6px;font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--accent);text-shadow:0 2px 6px rgba(0,0,0,0.8);}
+.card-rarity-badge{position:absolute;top:5px;right:6px;font-size:7px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:0.5px;}
+.badge-common{background:rgba(160,168,184,0.2);color:#a0a8b8}.badge-rare{background:rgba(79,195,247,0.2);color:#4fc3f7}.badge-epic{background:rgba(206,147,216,0.2);color:#ce93d8}.badge-legendary{background:rgba(255,215,0,0.2);color:var(--gold)}.badge-icon{background:rgba(232,69,60,0.2);color:var(--accent2)}
+.card-body{flex:1;padding:8px 8px 9px;display:flex;flex-direction:column;gap:2px;}
+.card-name{font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:0.5px;line-height:1.1;}
+.card-club{font-size:9px;color:var(--text-dim);}
+.card-pos-badge{display:inline-block;margin-top:3px;background:rgba(245,166,35,0.15);color:var(--accent);font-size:8px;font-weight:700;padding:2px 5px;border-radius:3px;text-transform:uppercase;}
+.legendary-sparkle{position:absolute;inset:-3px;border-radius:14px;pointer-events:none;}
+.legendary-sparkle::before{content:'';position:absolute;inset:0;border-radius:14px;border:2px solid var(--gold);animation:goldPulse 1.5s ease-in-out infinite;}
+@keyframes goldPulse{0%,100%{opacity:0.4;box-shadow:0 0 9px rgba(255,215,0,0.3)}50%{opacity:1;box-shadow:0 0 20px rgba(255,215,0,0.6)}}
+
+.action-btns{display:flex;gap:9px;flex-wrap:wrap;justify-content:center;}
+.action-btn{padding:10px 22px;border-radius:9px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;cursor:pointer;border:none;transition:all 0.2s;}
+.btn-again{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#000;}
+.btn-again:hover{transform:translateY(-2px);box-shadow:0 5px 18px rgba(245,166,35,0.3);}
+.btn-flip-all{background:var(--surface);color:var(--text);border:1px solid var(--border);}
+.btn-flip-all:hover{background:var(--surface2);}
+.flip-hint{font-size:11px;color:var(--text-dim);text-align:center;}
+
+.toast{position:fixed;bottom:18px;right:18px;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:11px 16px;font-size:13px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.4);transform:translateY(70px);opacity:0;transition:all 0.3s cubic-bezier(0.34,1.56,0.64,1);z-index:999;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast.success{border-color:var(--green);}
+.toast.error{border-color:var(--accent2);}
+
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+@media(max-width:650px){#adminPage.active{grid-template-columns:1fr}.right-panel{position:static;max-height:none;border-left:none;border-top:1px solid var(--border)}.form-row{grid-template-columns:1fr}.rarity-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+
+<header>
+  <div class="logo">PackZone</div>
+  <div class="tab-btns">
+    <button class="tab-btn active" onclick="switchPage('admin')">⚙ Creator</button>
+    <button class="tab-btn" onclick="switchPage('opening')">🎴 Opening</button>
+  </div>
+</header>
+
+<!-- ADMIN -->
+<div id="adminPage" class="active">
+  <div class="left-panel">
+
+    <div class="section-card">
+      <div class="section-title">📦 Pack Sozlamalari</div>
+      <div class="pack-type-grid">
+        <div class="pack-type-btn selected" data-pack="bronze" onclick="selectPackType(this)"><div class="pti">🥉</div><div class="ptl">Bronze</div></div>
+        <div class="pack-type-btn" data-pack="silver" onclick="selectPackType(this)"><div class="pti">🥈</div><div class="ptl">Silver</div></div>
+        <div class="pack-type-btn" data-pack="gold" onclick="selectPackType(this)"><div class="pti">🥇</div><div class="ptl">Gold</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Pack nomi</label><input type="text" id="packName" placeholder="UZ League Pack" /></div>
+        <div class="form-group"><label>Kartalar soni</label><input type="number" id="packSize" value="5" min="1" max="20" /></div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">⚽ O'yinchi Qo'shish</div>
+
+      <!-- IMAGE -->
+      <div class="img-section">
+        <label>O'yinchi rasmi</label>
+        <div class="img-methods">
+          <div class="img-method-btn active" id="methodFile" onclick="switchImgMethod('file')">📁 Galereya</div>
+          <div class="img-method-btn" id="methodUrl" onclick="switchImgMethod('url')">🔗 URL havolasi</div>
+        </div>
+
+        <!-- File upload -->
+        <div id="fileSection">
+          <div class="img-upload-box" id="uploadArea" onclick="document.getElementById('imgInput').click()">
+            <div class="uicon">📸</div>
+            <div class="utxt">Galereyadan rasm tanlang</div>
+            <div class="usub">JPG · PNG · WEBP</div>
+          </div>
+          <input type="file" id="imgInput" accept="image/*" onchange="handleFile(event)" />
+        </div>
+
+        <!-- URL -->
+        <div id="urlSection" style="display:none;">
+          <div class="img-url-row">
+            <input type="text" id="imgUrlInput" placeholder="https://example.com/player.jpg" />
+            <button class="img-url-apply" onclick="applyUrl()">Qo'y</button>
+          </div>
+          <div class="img-preview-box" id="urlPreview" style="margin-top:8px;">🖼</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label>Ism Familiya</label><input type="text" id="playerName" placeholder="Eldor Shomurodov" /></div>
+        <div class="form-group"><label>Klub / Jamoa</label><input type="text" id="playerClub" placeholder="O'zbekiston" /></div>
+        <div class="form-group"><label>Lavozim</label><input type="text" id="playerPos" placeholder="ST, CM, GK..." /></div>
+        <div class="form-group"><label>Millat</label><input type="text" id="playerNat" placeholder="🇺🇿 O'zbek" /></div>
+      </div>
+
+      <div class="form-group" style="margin-top:8px;">
+        <label>Reyting (1–99)</label>
+        <div class="rating-preview">
+          <div class="rating-num" id="ratingDisplay">75</div>
+          <div style="flex:1;">
+            <input type="range" id="ratingSlider" min="1" max="99" value="75" oninput="updateRating(this.value)" style="width:100%;accent-color:var(--accent);cursor:pointer;" />
+            <div class="rating-bar-wrap" style="margin-top:5px;"><div class="rating-bar-fill" id="ratingBar" style="width:75%;"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:10px;">
+        <label>Nadir daraja</label>
+        <div class="rarity-grid">
+          <div class="rarity-btn selected" data-r="common" onclick="selectRarity(this)"><div class="rdot" style="background:#a0a8b8;margin:0 auto 3px;"></div>Common</div>
+          <div class="rarity-btn" data-r="rare" onclick="selectRarity(this)"><div class="rdot" style="background:#4fc3f7;margin:0 auto 3px;"></div>Rare</div>
+          <div class="rarity-btn" data-r="epic" onclick="selectRarity(this)"><div class="rdot" style="background:#ce93d8;margin:0 auto 3px;"></div>Epic</div>
+          <div class="rarity-btn" data-r="legendary" onclick="selectRarity(this)"><div class="rdot" style="background:var(--gold);margin:0 auto 3px;"></div>Legend</div>
+          <div class="rarity-btn" data-r="icon" onclick="selectRarity(this)"><div class="rdot" style="background:var(--accent2);margin:0 auto 3px;"></div>Icon</div>
+        </div>
+      </div>
+
+      <button class="add-btn" onclick="addPlayer()">+ O'YINCHI QO'SHISH</button>
+    </div>
+  </div>
+
+  <div class="right-panel">
+    <div class="panel-title">O'yinchilar <span class="panel-count" id="playerCount">0</span></div>
+    <div id="playerList"><div class="empty-state"><div class="empty-icon">⚽</div><div class="empty-text">Hali o'yinchi yo'q</div></div></div>
+    <button class="save-pack-btn" id="saveBtn" onclick="savePack()" disabled>💾 SAQLASH</button>
+  </div>
+</div>
+
+<!-- OPENING -->
+<div id="openingPage">
+  <div id="openingContent" style="width:100%;display:flex;flex-direction:column;align-items:center;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let players=[], currentImage=null, imgMethod='file';
+let selectedRarity='common', selectedPackType='bronze', packSaved=null, allFlipped=false;
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<18;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'vw';p.style.animationDuration=(6+Math.random()*10)+'s';p.style.animationDelay=(Math.random()*8)+'s';p.style.width=p.style.height=(2+Math.random()*3)+'px';p.style.background=Math.random()>0.5?'var(--accent)':'var(--accent2)';pc.appendChild(p);}
+
+function switchPage(page){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',(i===0&&page==='admin')||(i===1&&page==='opening')));
+  document.getElementById('adminPage').classList.toggle('active',page==='admin');
+  document.getElementById('openingPage').classList.toggle('active',page==='opening');
+  if(page==='opening')renderOpening();
+}
+
+// Image method
+function switchImgMethod(m){
+  imgMethod=m;
+  document.getElementById('methodFile').classList.toggle('active',m==='file');
+  document.getElementById('methodUrl').classList.toggle('active',m==='url');
+  document.getElementById('fileSection').style.display=m==='file'?'block':'none';
+  document.getElementById('urlSection').style.display=m==='url'?'block':'none';
+  currentImage=null;
+}
+
+// File upload
+function handleFile(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(ev)=>{
+    currentImage=ev.target.result;
+    const area=document.getElementById('uploadArea');
+    area.classList.add('has-img');
+    area.innerHTML=`<img src="${currentImage}" />`;
+  };
+  reader.readAsDataURL(file);
+}
+
+// URL
+function applyUrl(){
+  const url=document.getElementById('imgUrlInput').value.trim();
+  if(!url){showToast('❌ URL kiriting!','error');return;}
+  currentImage=url;
+  const prev=document.getElementById('urlPreview');
+  prev.innerHTML=`<img src="${url}" onerror="this.parentElement.innerHTML='❌ Rasm yuklanmadi'" style="width:100%;height:100%;object-fit:cover;border-radius:7px;" />`;
+  showToast('✅ Rasm qo\'yildi!','success');
+}
+
+function selectPackType(el){document.querySelectorAll('.pack-type-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');selectedPackType=el.dataset.pack;}
+function selectRarity(el){document.querySelectorAll('.rarity-btn').forEach(b=>b.classList.remove('selected'));el.classList.add('selected');selectedRarity=el.dataset.r;}
+function updateRating(v){document.getElementById('ratingDisplay').textContent=v;document.getElementById('ratingBar').style.width=v+'%';}
+
+function addPlayer(){
+  const name=document.getElementById('playerName').value.trim();
+  if(!name){showToast('❌ Ism kiriting!','error');return;}
+  players.push({id:Date.now(),name,club:document.getElementById('playerClub').value.trim(),pos:document.getElementById('playerPos').value.trim(),nat:document.getElementById('playerNat').value.trim(),rating:parseInt(document.getElementById('ratingSlider').value),rarity:selectedRarity,image:currentImage||null});
+  renderList();resetForm();showToast('✅ '+name+' qo\'shildi!','success');
+}
+function removePlayer(id){players=players.filter(p=>p.id!==id);renderList();}
+function renderList(){
+  document.getElementById('playerCount').textContent=players.length;
+  document.getElementById('saveBtn').disabled=!players.length;
+  const list=document.getElementById('playerList');
+  if(!players.length){list.innerHTML=`<div class="empty-state"><div class="empty-icon">⚽</div><div class="empty-text">Hali o'yinchi yo'q</div></div>`;return;}
+  list.innerHTML=players.map(p=>`<div class="player-card-item"><div class="player-thumb">${p.image?`<img src="${p.image}" />`:'⚽'}</div><div class="player-info"><div class="player-name">${esc(p.name)}</div><div class="player-meta">${esc(p.club||'—')}${p.pos?' · '+esc(p.pos):''}</div><span class="rtag rt-${p.rarity}">${rLabel(p.rarity)}</span></div><div class="player-rb">${p.rating}</div><button class="remove-btn" onclick="removePlayer(${p.id})">×</button></div>`).join('');
+}
+function resetForm(){
+  ['playerName','playerClub','playerPos','playerNat'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ratingSlider').value=75;updateRating(75);
+  currentImage=null;
+  if(imgMethod==='file'){const a=document.getElementById('uploadArea');a.classList.remove('has-img');a.innerHTML='<div class="uicon">📸</div><div class="utxt">Galereyadan rasm tanlang</div><div class="usub">JPG · PNG · WEBP</div>';document.getElementById('imgInput').value='';}
+  else{document.getElementById('imgUrlInput').value='';document.getElementById('urlPreview').innerHTML='🖼';}
+}
+function savePack(){
+  if(!players.length){showToast('❌ Avval o\'yinchi qo\'shing!','error');return;}
+  packSaved={name:document.getElementById('packName').value.trim()||'Mening Packim',type:selectedPackType,size:parseInt(document.getElementById('packSize').value)||5,players:[...players]};
+  showToast('💾 Pack saqlandi!','success');
+}
+
+// OPENING
+function renderOpening(){
+  const c=document.getElementById('openingContent');
+  if(!packSaved||!packSaved.players.length){
+    c.innerHTML=`<div class="no-pack"><div class="no-pack-icon">📦</div><div class="no-pack-title">Pack topilmadi</div><div class="no-pack-text">Creator da pack yarating va saqlang.</div><button class="go-admin-btn" onclick="switchPage('admin')">⚙ Creator</button></div>`;
+    return;
+  }
+  const te={bronze:'🥉',silver:'🥈',gold:'🥇'}[packSaved.type]||'📦';
+  c.innerHTML=`
+    <div class="pack-info">
+      <div class="pack-type-badge">${te} ${(packSaved.type||'pack').toUpperCase()}</div>
+      <div class="pack-name-big">${esc(packSaved.name)}</div>
+      <div class="pack-sub">${packSaved.players.length} ta o'yinchidan ${packSaved.size} ta chiqadi</div>
+    </div>
+    <div id="packStage">
+      <div class="pack-envelope-wrap" onclick="startOpening()">
+        <div class="pack-envelope" id="packEnvelope">
+          <div class="pack-face">
+            <div class="pack-glow"></div>
+            <div class="pack-icon">${te}</div>
+            <div class="pack-label">${esc(packSaved.name)}</div>
+            <div class="pack-cards-count">${packSaved.size} ta karta</div>
+          </div>
+        </div>
+      </div>
+      <div class="open-hint">👆 Bosing va oching!</div>
+    </div>
+    <div id="cardsArea">
+      <div class="cards-grid" id="cardsGrid"></div>
+      <div class="flip-hint">🃏 Kartalarni bosib aylantiring!</div>
+      <div class="action-btns">
+        <button class="action-btn btn-flip-all" onclick="flipAll()">🔄 HAMMASINI OCHISH</button>
+        <button class="action-btn btn-again" onclick="renderOpening()">▶ YANA OCHISH</button>
+      </div>
+    </div>`;
+}
+
+function startOpening(){
+  const env=document.getElementById('packEnvelope');
+  if(!env)return;
+  env.classList.add('shaking');
+  setTimeout(()=>{env.classList.remove('shaking');env.classList.add('opening');setTimeout(()=>{document.getElementById('packStage').style.display='none';showCards();},650);},600);
+}
+function showCards(){
+  const size=Math.min(packSaved.size,packSaved.players.length);
+  const cards=[...packSaved.players].sort(()=>Math.random()-0.5).slice(0,size);
+  document.getElementById('cardsArea').style.display='flex';
+  document.getElementById('cardsGrid').innerHTML=cards.map((p,i)=>`
+    <div class="player-card" style="animation-delay:${i*0.12}s" onclick="this.classList.toggle('flipped')">
+      <div class="card-inner">
+        <div class="card-face card-back">⚽</div>
+        <div class="card-face card-front ${p.rarity}">
+          ${(p.rarity==='legendary'||p.rarity==='icon')?'<div class="legendary-sparkle"></div>':''}
+          <div class="card-img-area">
+            ${p.image?`<img src="${p.image}" alt="${esc(p.name)}" />`:'<div class="card-img-emoji">⚽</div>'}
+            <div class="card-rating-badge">${p.rating}</div>
+            <div class="card-rarity-badge badge-${p.rarity}">${rLabel(p.rarity)}</div>
+          </div>
+          <div class="card-body">
+            <div class="card-name">${esc(p.name)}</div>
+            <div class="card-club">${esc(p.club||'')}</div>
+            ${p.pos?`<span class="card-pos-badge">${esc(p.pos)}</span>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+  allFlipped=false;
+}
+function flipAll(){allFlipped=!allFlipped;document.querySelectorAll('#cardsGrid .player-card').forEach(c=>c.classList.toggle('flipped',allFlipped));}
+
+function rLabel(r){return{common:'Common',rare:'Rare',epic:'Epic',legendary:'Legendary',icon:'Icon'}[r]||r;}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3000);}
+</script>
+</body>
+</html>
